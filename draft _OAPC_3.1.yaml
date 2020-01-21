@@ -1,0 +1,1781 @@
+openapi: 3.0.1
+info:
+  title: API OAPC
+  version: v1
+tags:
+  - name: Connect
+    description: "Permet l'identification de l'OC"
+  - name: Communes
+    description: "Méthode permettant la récupération de la liste des Communes (Méthode entonnoir)"
+  - name: Voies
+    description: "Méthode permettant la récupération de la liste voies d'une commune (Méthode entonnoir)"
+  - name: Numeros
+    description: "Méthodes permettant la récupération de la liste des numéros d'une voie (Méthode entonnoir)"
+  - name: Batiments
+    description: "Méthodes permettant la récupération de la liste batiments situés à un numéro d'une voie (Méthode entonnoir)"
+  - name: StructureIMB
+    description: "Méthodes permettant la récupération de la liste (Méthode entonnoir)"
+  - name: StructureAdresse
+    description: "Méthodes permettant la récupération de la structure complète d'une adresse (Méthode historique)"
+paths:
+  '/api/Batiments/referenceHexacle/{referenceHexacle}':
+    get:
+      tags:
+        - Batiments
+      summary: Retourne la liste des batiments associés à une hexacle
+      description: ''
+      parameters:
+        - name: referenceHexacle
+          in: path
+          description: Référence Hexacle du batiment souhaité
+          required: true
+          schema:
+            maxLength: 10
+            minLength: 0
+            type: string
+            nullable: true
+      responses:
+        '200':
+          description: Liste des batiments situés à l'hexacle retournée avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatimentsSimpleResponse'
+        '400':
+          description: Reference Hexacle non conforme
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResult'
+        '500':
+          description: Oops! le service est indisponible pour le moment
+  '/api/Batiments/referenceRivoli/{codeInsee}/{codeRivoli}/{numeroVoie}':
+    get:
+      tags:
+        - Batiments
+      summary: Retourne la liste des batiments associés à un code Rivoli
+      description: ''
+      parameters:
+        - name: codeInsee
+          in: path
+          description: Code Insee de la commune concernée
+          required: true
+          schema:
+            maxLength: 5
+            minLength: 5
+            type: string
+            nullable: true
+        - name: codeRivoli
+          in: path
+          description: Code Rivoli de la rue concernée
+          required: true
+          schema:
+            maxLength: 4
+            minLength: 4
+            type: string
+            nullable: true
+        - name: numeroVoie
+          in: path
+          description: Numéro du batiment dans la rue
+          required: true
+          schema:
+            minimum: 0
+            type: integer
+            format: int32
+        - name: complementNumeroVoie
+          in: query
+          description: Complément du numéro de rue
+          schema:
+            maxLength: 1
+            minLength: 0
+            type: string
+            nullable: true
+      responses:
+        '200':
+          description: Liste des batiments situés au code Rivoli retournée avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatimentsSimpleResponse'
+        '400':
+          description: Code Rivoli non conforme ou inexistant dans le référentiel de l'OI
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResult'
+        '500':
+          description: Oops! le service est indisponible pour le moment
+  '/api/Batiments/referenceHexacleVoie/{codeHexacleVoie}/{numeroVoie}':
+    get:
+      tags:
+        - Batiments
+      summary: Retourne la liste des batiments associés à un code HexacleVoie
+      description: ''
+      parameters:
+        - name: codeHexacleVoie
+          in: path
+          description: Référence Hexacle du batiment souhaité
+          required: true
+          schema:
+            maxLength: 5
+            minLength: 5
+            type: string
+            nullable: true
+        - name: numeroVoie
+          in: path
+          description: Référence Hexacle du batiment souhaité
+          required: true
+          schema:
+            minimum: 0
+            type: integer
+            format: int32
+        - name: complementNumeroVoie
+          in: query
+          description: Référence Hexacle du batiment souhaité
+          schema:
+            maxLength: 1
+            minLength: 0
+            type: string
+            nullable: true
+      responses:
+        '200':
+          description: Liste des batiments situés à l'hexacleVoie retournée avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatimentsSimpleResponse'
+        '400':
+          description: Reference Hexacle non conforme ou inexistant dans le référentiel de l'OI
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResult'
+        '500':
+          description: Oops! le service est indisponible pour le moment
+  '/api/Batiments/referenceBAN/{referenceBAN}':
+    get:
+      tags:
+        - Batiments
+      summary: Retourne la liste des batiments associés à une référence BAN
+      description: ''
+      parameters:
+        - name: referenceBAN
+          in: path
+          description: Référence BAN recherchée
+          required: true
+          schema:
+            maxLength: 30
+            minLength: 0
+            type: string
+            nullable: true
+      responses:
+        '200':
+          description: Liste des batiments situés à la référence BAN retournée avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatimentsSimpleResponse'
+        '400':
+          description: Reference BAN non conforme ou inexistant dans le référentiel de l'OI
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResult'
+        '500':
+          description: Oops! le service est indisponible pour le moment
+  '/api/Batiments/referencePTO/{referencePTO}':
+    get:
+      tags:
+        - Batiments
+      summary: Retourne la liste des batiments grâce à sa PTO
+      description: ''
+      parameters:
+        - name: referencePTO
+          in: path
+          description: Référence PTO recherchée
+          required: true
+          schema:
+            maxLength: 30
+            minLength: 0
+            type: string
+            nullable: true
+        - name: batiment
+          in: query
+          description: Batiment recherché
+          schema:
+            type: string
+            nullable: true
+        - name: escalier
+          in: query
+          description: Escalier recherché
+          schema:
+            type: string
+            nullable: true
+        - name: etage
+          in: query
+          description: Etage recherché
+          schema:
+            type: string
+            nullable: true
+      responses:
+        '200':
+          description: Batiment associé à la PTO retournée avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatimentsSimpleResponse'
+        '400':
+          description: Reference PTO non conforme ou inexistante dans le référentiel de l'OI
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResult'
+        '500':
+          description: Oops! le service est indisponible pour le moment
+  '/api/Communes/{codePostal}':
+    get:
+      tags:
+        - Communes
+      summary: Retourne la liste des communes attachées à un code postal
+      description: ''
+      parameters:
+        - name: codePostal
+          in: path
+          description: Code postal recherché
+          required: true
+          schema:
+            maxLength: 5
+            minLength: 5
+            type: string
+            nullable: true
+      responses:
+        '200':
+          description: Liste des communes associées au code postal retournée avec succès
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/CommunesResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommunesResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/CommunesResponse'
+        '400':
+          description: Code postal non conforme ou inexistant dans le référentiel de l'OI
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/BadRequestResult'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResult'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResult'
+        '500':
+          description: Oops! le service est indisponible pour le moment
+  /api/Connect:
+    get:
+      tags:
+        - Connect
+      summary: Retourne un token pour un utilisateur s'identifiant
+      description: ''
+      parameters:
+        - name: user
+          in: query
+          description: Login de l'utilisateur
+          schema:
+            type: string
+            nullable: true
+        - name: password
+          in: query
+          description: Mot de passe de l'utilisateur
+          schema:
+            type: string
+            nullable: true
+      responses:
+        '200':
+          description: Token généré et retourné avec succès
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Token'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        '400':
+          description: login ou mot de passe incorrect
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/BadRequestResult'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResult'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResult'
+        '500':
+          description: Oops! le service est indisponible pour le moment
+  '/api/Numeros/referenceHexacleVoie/{referenceHexacleVoie}':
+    get:
+      tags:
+        - Numeros
+      summary: Retourne la liste des numéros attachées à une référence HexacleVoie
+      description: ''
+      parameters:
+        - name: referenceHexacleVoie
+          in: path
+          description: Référence hexacleVoie recherchée
+          required: true
+          schema:
+            maxLength: 10
+            minLength: 0
+            type: string
+            nullable: true
+      responses:
+        '200':
+          description: Liste des numéros de voie
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NumerosResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NumerosResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/NumerosResponse'
+        '400':
+          description: Référence HexacleVoie non conforme ou inexistante dans le référenciel de l'OI
+        '500':
+          description: Oops! le service est indisponible pour le moment
+  '/api/Numeros/referenceRivoli/{codeInsee}/{codeRivoli}':
+    get:
+      tags:
+        - Numeros
+      summary: Retourne la liste des numéros attachées à un code Insee et un code Rivoli
+      description: ''
+      parameters:
+        - name: codeInsee
+          in: path
+          description: Code Insee de la voie recherchée
+          required: true
+          schema:
+            maxLength: 5
+            minLength: 5
+            type: string
+            nullable: true
+        - name: codeRivoli
+          in: path
+          description: Code Rivoli de la voie recherché
+          required: true
+          schema:
+            maxLength: 4
+            minLength: 0
+            type: string
+            nullable: true
+      responses:
+        '200':
+          description: Liste des numéros de voie retournée avec succès
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NumerosResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NumerosResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/NumerosResponse'
+        '400':
+          description: Code Insee ou Code Rivoli non conforme ou inexistant dans le référentiel de l'OI
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/BadRequestResult'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResult'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResult'
+        '500':
+          description: Oops! le service est indisponible pour le moment
+  '/api/Numeros/referenceVoieOI/{referenceVoieOI}':
+    get:
+      tags:
+        - Numeros
+      summary: Retourne la liste des numéros attachées à une reference Voie de l'OI
+      description: ''
+      parameters:
+        - name: referenceVoieOI
+          in: path
+          description: Référence de la voie recherchée chez l'OI
+          required: true
+          schema:
+            maxLength: 30
+            minLength: 0
+            type: string
+            nullable: true
+      responses:
+        '200':
+          description: Liste des numéros de voie retournée avec succès
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NumerosResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NumerosResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/NumerosResponse'
+        '400':
+          description: Référence voie non conforme ou inexistante dans le référentiel de l'OI
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/BadRequestResult'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResult'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResult'
+        '500':
+          description: Oops! le service est indisponible pour le moment
+  '/api/StructureAdresse/referenceHexacle/{referenceHexacle}':
+    get:
+      tags:
+        - StructureAdresse
+      summary: Retourne la structure complète d'une adresse associée à une hexacle
+      description: ''
+      parameters:
+        - name: referenceHexacle
+          in: path
+          description: Référence Hexacle de l'adresse recherchée
+          required: true
+          schema:
+            maxLength: 10
+            minLength: 0
+            type: string
+            nullable: true
+        - name: batiment
+          in: query
+          description: Référence du batiment
+          schema:
+            type: string
+            nullable: true
+        - name: escalier
+          in: query
+          description: Référence de l'escalier (utilisable uniquement si batiment est renseigné)
+          schema:
+            type: string
+            nullable: true
+        - name: etage
+          in: query
+          description: Référence de l'étage (utilisable uniquement si batiment et escalier sont renseignés)
+          schema:
+            type: string
+            nullable: true
+      responses:
+        '200':
+          description: Structure complète de l'adresse retournée avec succès
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/BatimentsResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatimentsResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/BatimentsResponse'
+        '400':
+          description: Référence Hexacle incorrecte ou inexistante dans le référentiel de l'OI
+        '500':
+          description: Oops! le service est indisponible pour le moment
+  '/api/StructureAdresse/referenceRivoli/{codeInsee}/{codeRivoli}/{numeroVoie}':
+    get:
+      tags:
+        - StructureAdresse
+      summary: Retourne la structure complète d'une adresse associée à un code Rivoli
+      description: ''
+      parameters:
+        - name: codeInsee
+          in: path
+          description: Code insee de l'adresse dont vous souhaitez récupérer la structure
+          required: true
+          schema:
+            maxLength: 5
+            minLength: 5
+            type: string
+            nullable: true
+        - name: codeRivoli
+          in: path
+          description: Code rivoli de l'adresse dont vous souhaitez récupérer la structure
+          required: true
+          schema:
+            maxLength: 4
+            minLength: 0
+            type: string
+            nullable: true
+        - name: numeroVoie
+          in: path
+          description: Numéro de la voie de l'adresse dont vous souhaitez récupérer la structure
+          required: true
+          schema:
+            minimum: 0
+            type: integer
+            format: int32
+        - name: complementNumeroVoie
+          in: query
+          description: Complément du numéro de voie
+          schema:
+            maxLength: 1
+            minLength: 0
+            type: string
+            nullable: true
+        - name: batiment
+          in: query
+          description: Référence du batiment
+          schema:
+            type: string
+            nullable: true
+        - name: escalier
+          in: query
+          description: Référence de l'escalier (utilisable uniquement si batiment est renseigné)
+          schema:
+            type: string
+            nullable: true
+        - name: etage
+          in: query
+          description: Référence de l'étage (utilisable uniquement si batiment et escalier sont renseignés)
+          schema:
+            type: string
+            nullable: true
+      responses:
+        '200':
+          description: Structure complète de l'adresse retournée avec succès
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/BatimentsResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatimentsResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/BatimentsResponse'
+        '400':
+          description: Code insee ou Rivoli incorrect ou inexistant dans le référentiel de l'OI
+        '500':
+          description: Oops! le service est indisponible pour le moment
+  '/api/StructureAdresse/referenceHexacleVoie/{codeHexacleVoie}/{numeroVoie}':
+    get:
+      tags:
+        - StructureAdresse
+      summary: Retourne la structure complète d'une adresse associé à une hexaclévoie et un numéro
+      description: ''
+      parameters:
+        - name: codeHexacleVoie
+          in: path
+          description: Code HexacleVoie de la voie de l'adresse souhaitée
+          required: true
+          schema:
+            maxLength: 5
+            minLength: 0
+            type: string
+            nullable: true
+        - name: numeroVoie
+          in: path
+          description: Numéro dans la voie
+          required: true
+          schema:
+            minimum: 0
+            type: integer
+            format: int32
+        - name: complementNumeroVoie
+          in: query
+          description: Complément numéro de voie
+          schema:
+            maxLength: 1
+            minLength: 0
+            type: string
+            nullable: true
+        - name: batiment
+          in: query
+          description: Référence du batiment
+          schema:
+            type: string
+            nullable: true
+        - name: escalier
+          in: query
+          description: Référence de l'escalier (utilisable uniquement si batiment est renseigné)
+          schema:
+            type: string
+            nullable: true
+        - name: etage
+          in: query
+          description: Référence de l'étage (utilisable uniquement si batiment et escalier sont renseignés)
+          schema:
+            type: string
+            nullable: true
+      responses:
+        '200':
+          description: Structure complète de l'adresse retournée avec succès
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/BatimentsResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatimentsResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/BatimentsResponse'
+        '400':
+          description: Code HexacleVoie ou numéro de voie incorrect ou inexistant dans le référentiel de l'OI
+        '500':
+          description: Oops! le service est indisponible pour le moment
+  '/api/StructureAdresse/CoordonneesGeo/{typeProjection}':
+    get:
+      tags:
+        - StructureAdresse
+      summary: Retourne la structure complète d'une adresse situé aux coordonnées
+      description: ''
+      parameters:
+        - name: typeProjection
+          in: path
+          description: Code HexacleVoie de la voie de l'adresse souhaitée
+          required: true
+          schema:
+            maxLength: 5
+            minLength: 0
+            type: string
+            nullable: true
+        - name: coordonneeImmeubleX
+          in: query
+          description: Numéro dans la voie
+          required: true
+          schema:
+            type: number
+            format: double
+        - name: coordonneeImmeubleY
+          in: query
+          description: Complément numéro de voie
+          required: true
+          schema:
+            type: number
+            format: double
+        - name: batiment
+          in: query
+          description: Référence du batiment
+          schema:
+            type: string
+            nullable: true
+        - name: escalier
+          in: query
+          description: Référence de l'escalier (utilisable uniquement si batiment est renseigné)
+          schema:
+            type: string
+            nullable: true
+        - name: etage
+          in: query
+          description: Référence de l'étage (utilisable uniquement si batiment et escalier sont renseignés)
+          schema:
+            type: string
+            nullable: true
+      responses:
+        '200':
+          description: Structure complète de l'adresse retournée avec succès
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/BatimentsResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatimentsResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/BatimentsResponse'
+        '400':
+          description: Type de projection non pris en charge par l'OI ou coordonnées inexistantes dans le référentiel de l'OI
+        '500':
+          description: Oops! le service est indisponible pour le moment
+  '/api/StructureAdresse/referenceBAN/{referenceBAN}':
+    get:
+      tags:
+        - StructureAdresse
+      summary: Retourne la structure complète d'une adresse associé à une référence BAN
+      description: ''
+      parameters:
+        - name: referenceBAN
+          in: path
+          description: Référence BAN de l'adresse souhaitée
+          required: true
+          schema:
+            maxLength: 30
+            minLength: 0
+            type: string
+            nullable: true
+        - name: batiment
+          in: query
+          description: Référence du batiment
+          schema:
+            type: string
+            nullable: true
+        - name: escalier
+          in: query
+          description: Référence de l'escalier (utilisable uniquement si batiment est renseigné)
+          schema:
+            type: string
+            nullable: true
+        - name: etage
+          in: query
+          description: Référence de l'étage (utilisable uniquement si batiment et escalier sont renseignés)
+          schema:
+            type: string
+            nullable: true
+      responses:
+        '200':
+          description: Structure complète de l'adresse retournée avec succès
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/BatimentsResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatimentsResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/BatimentsResponse'
+        '400':
+          description: Code postal ou insee incorrect
+        '500':
+          description: Oops! le service est indisponible pour le moment
+  '/api/StructureAdresse/referencePTO/{referencePTO}':
+    get:
+      tags:
+        - StructureAdresse
+      summary: Retourne la structure complète d'une adresse à laquelle se situe une PTO
+      description: ''
+      parameters:
+        - name: referencePTO
+          in: path
+          description: Référence de la PTO  dont vous souhaitez le détail de l'adresse
+          required: true
+          schema:
+            maxLength: 30
+            minLength: 0
+            type: string
+            nullable: true
+        - name: batiment
+          in: query
+          description: Référence du batiment
+          schema:
+            type: string
+            nullable: true
+        - name: escalier
+          in: query
+          description: Référence de l'escalier (utilisable uniquement si batiment est renseigné)
+          schema:
+            type: string
+            nullable: true
+        - name: etage
+          in: query
+          description: Référence de l'étage (utilisable uniquement si batiment et escalier sont renseignés)
+          schema:
+            type: string
+            nullable: true
+      responses:
+        '200':
+          description: Structure complète de l'adresse retournée avec succès
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/BatimentsResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatimentsResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/BatimentsResponse'
+        '400':
+          description: Code postal ou insee incorrect
+        '500':
+          description: Oops! le service est indisponible pour le moment
+  '/api/StructureAdresse/IMB/{IMB}':
+    get:
+      tags:
+        - StructureAdresse
+      summary: Retourne la structure complète d'une adresse associée à un IMB
+      description: ''
+      parameters:
+        - name: IMB
+          in: path
+          description: Référence IMB situé à l'adresse souhaitée
+          required: true
+          schema:
+            maxLength: 30
+            minLength: 0
+            type: string
+            nullable: true
+      responses:
+        '200':
+          description: Verticalité de l'IMB retournée avec succès
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/BatimentsResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatimentsResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/BatimentsResponse'
+        '400':
+          description: Référence IMB incorrecte ou inexistante dans le référenciel de l'OI
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/BadRequestResult'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResult'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResult'
+        '500':
+          description: Oops! le service est indisponible pour le moment
+  '/api/StructureIMB/{IMB}':
+    get:
+      tags:
+        - StructureIMB
+      summary: Retourne la structure verticale simplifiée d'un IMB
+      description: ''
+      parameters:
+        - name: IMB
+          in: path
+          description: Référence IMB dont vous souhaitez la verticalité
+          required: true
+          schema:
+            maxLength: 30
+            minLength: 0
+            type: string
+            nullable: true
+      responses:
+        '200':
+          description: Verticalité de l'IMB retournée avec succès
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/StructureIMBSimple'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StructureIMBSimple'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/StructureIMBSimple'
+        '400':
+          description: Référence IMB incorrecte ou inexistante dans le référenciel de l'OI
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/BadRequestResult'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResult'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResult'
+        '500':
+          description: Oops! le service est indisponible pour le moment
+  '/api/StructureIMB/Vertical/{IMB}':
+    get:
+      tags:
+        - StructureIMB
+      summary: Retourne la structure verticale détaillée d'un IMB
+      description: ''
+      parameters:
+        - name: IMB
+          in: path
+          description: Référence IMB dont vous souhaitez le détail de verticalité
+          required: true
+          schema:
+            maxLength: 30
+            minLength: 0
+            type: string
+            nullable: true
+        - name: batiment
+          in: query
+          description: Batiment dont vous souhaitez le détail de verticalité
+          schema:
+            maxLength: 60
+            minLength: 0
+            type: string
+            nullable: true
+        - name: escalier
+          in: query
+          description: Escalier dont vous souhaitez le détail de verticalité
+          schema:
+            maxLength: 25
+            minLength: 0
+            type: string
+            nullable: true
+        - name: etage
+          in: query
+          description: Etage dont vous souhaitez le détail de verticalité
+          schema:
+            maxLength: 25
+            minLength: 0
+            type: string
+            nullable: true
+      responses:
+        '200':
+          description: Verticalité détaillée de l'IMB retournée avec succès
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/StructureIMBSimpleDetail'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StructureIMBSimpleDetail'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/StructureIMBSimpleDetail'
+        '400':
+          description: Référence IMB incorrecte ou inexistante dans le référenciel de l'OI
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/BadRequestResult'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResult'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResult'
+        '500':
+          description: Oops! le service est indisponible pour le moment
+  '/api/StructureIMB/PTO/{refPTO}':
+    get:
+      tags:
+        - StructureIMB
+      summary: "Retourne la structure verticale détaillée d'une PTO        \r\n///"
+      description: ''
+      parameters:
+        - name: refPTO
+          in: path
+          description: Référence PTO dont vous désirez le détail de verticalité
+          required: true
+          schema:
+            maxLength: 30
+            minLength: 0
+            type: string
+            nullable: true
+      responses:
+        '200':
+          description: Verticalité détaillée de la PTO retournée avec succès
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/StructureIMBSimpleDetail'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StructureIMBSimpleDetail'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/StructureIMBSimpleDetail'
+        '400':
+          description: Référence PTO incorrecte ou inexistante dans le référenciel de l'OI
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/BadRequestResult'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResult'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResult'
+        '500':
+          description: Oops! le service est indisponible pour le moment
+  '/api/Voies/{codePostal}/{codeInsee}':
+    get:
+      tags:
+        - Voies
+      summary: Retourne la liste des voies associés à un code postal et un code insee
+      description: ''
+      parameters:
+        - name: codePostal
+          in: path
+          description: Code postal de la ville dont vous souhaitez récupérer les voies
+          required: true
+          schema:
+            maxLength: 5
+            minLength: 5
+            type: string
+            nullable: true
+        - name: codeInsee
+          in: path
+          description: Code insee de la ville dont vous souhaitez récupérer les voies
+          required: true
+          schema:
+            maxLength: 5
+            minLength: 5
+            type: string
+            nullable: true
+      responses:
+        '200':
+          description: Liste des voies associés à un code postal et un code insee retournée avec succès
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/VoiesResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoiesResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/VoiesResponse'
+        '400':
+          description: Code postal ou insee incorrect
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/BadRequestResult'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResult'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResult'
+        '500':
+          description: Oops! le service est indisponible pour le moment
+components:
+  schemas:
+    ReferenceRivoli:
+      type: object
+      properties:
+        codeInsee:
+          maxLength: 5
+          minLength: 5
+          type: string
+          nullable: true
+        codeRivoli:
+          maxLength: 4
+          minLength: 4
+          type: string
+          nullable: true
+        numeroVoie:
+          minimum: 0
+          type: integer
+          format: int32
+        complementNumeroVoie:
+          maxLength: 1
+          minLength: 0
+          type: string
+          nullable: true
+      nullable: true
+    ReferenceHexacleVoie:
+      type: object
+      properties:
+        codeHexacleVoie:
+          maxLength: 10
+          minLength: 10
+          type: string
+          nullable: true
+        numeroVoie:
+          minimum: 0
+          type: integer
+          format: int32
+        complementNumeroVoie:
+          maxLength: 1
+          minLength: 0
+          type: string
+          nullable: true
+      nullable: true
+    ReferenceAdresse:
+      type: object
+      properties:
+        referenceHexacle:
+          maxLength: 10
+          minLength: 10
+          type: string
+          nullable: true
+        referenceRivoli:
+          $ref: '#/components/schemas/ReferenceRivoli'
+        referenceHexacleVoie:
+          $ref: '#/components/schemas/ReferenceHexacleVoie'
+      nullable: true
+    CoordonneesGeographiques:
+      type: object
+      properties:
+        typeProjection:
+          maxLength: 10
+          minLength: 0
+          type: string
+          nullable: true
+        coordonneeImmeubleX:
+          type: string
+          nullable: true
+        coordonneeImmeubleY:
+          type: string
+          nullable: true
+      nullable: true
+    BatimentSimple:
+      required:
+        - reference
+      type: object
+      properties:
+        reference:
+          maxLength: 60
+          minLength: 0
+          type: string
+        identifiantImmeuble:
+          maxLength: 300
+          minLength: 0
+          type: string
+          nullable: true
+        referenceGeographique:
+          $ref: '#/components/schemas/CoordonneesGeographiques'
+        referenceBAN:
+          maxLength: 30
+          minLength: 0
+          type: string
+          nullable: true
+      nullable: true
+    CodeRetour:
+      type: object
+      properties:
+        code:
+          type: string
+          nullable: true
+        codeErreur:
+          type: string
+          nullable: true
+        libelleErreur:
+          type: string
+          nullable: true
+      nullable: true
+    BatimentsSimpleResponse:
+      type: object
+      properties:
+        referenceAdresse:
+          $ref: '#/components/schemas/ReferenceAdresse'
+        batiments:
+          type: array
+          items:
+            $ref: '#/components/schemas/BatimentSimple'
+          nullable: true
+        codeRetour:
+          $ref: '#/components/schemas/CodeRetour'
+      nullable: true
+    BadRequestResult:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          format: int32
+          readOnly: true
+      nullable: true
+    Commune:
+      type: object
+      properties:
+        codeInsee:
+          maxLength: 5
+          minLength: 5
+          type: string
+          nullable: true
+        nom:
+          maxLength: 50
+          minLength: 0
+          type: string
+          nullable: true
+      nullable: true
+    CommunesResponse:
+      type: object
+      properties:
+        communes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Commune'
+          nullable: true
+        codeRetour:
+          $ref: '#/components/schemas/CodeRetour'
+      nullable: true
+    Token:
+      type: object
+      properties:
+        value:
+          type: string
+          nullable: true
+        generation:
+          type: string
+          format: date-time
+        expiration:
+          type: string
+          format: date-time
+        type:
+          type: string
+          nullable: true
+      nullable: true
+    VoieRivoli:
+      type: object
+      properties:
+        codeInsee:
+          maxLength: 5
+          minLength: 5
+          type: string
+          nullable: true
+        codeRivoli:
+          maxLength: 4
+          minLength: 4
+          type: string
+          nullable: true
+      nullable: true
+    NumeroVoie:
+      type: object
+      properties:
+        numero:
+          minimum: 0
+          type: integer
+          format: int32
+        complementNumero:
+          maxLength: 1
+          minLength: 0
+          type: string
+          nullable: true
+        referenceHexacle:
+          maxLength: 10
+          minLength: 10
+          type: string
+          nullable: true
+        referenceGeographiqueAdresse:
+          $ref: '#/components/schemas/CoordonneesGeographiques'
+      nullable: true
+    NumerosResponse:
+      type: object
+      properties:
+        referenceHexacleVoie:
+          maxLength: 10
+          minLength: 10
+          type: string
+          nullable: true
+        referenceRivoliVoie:
+          $ref: '#/components/schemas/VoieRivoli'
+        referenceVoieOI:
+          maxLength: 30
+          minLength: 0
+          type: string
+          nullable: true
+        numeroVoies:
+          type: array
+          items:
+            $ref: '#/components/schemas/NumeroVoie'
+          nullable: true
+        codeRetour:
+          $ref: '#/components/schemas/CodeRetour'
+      nullable: true
+    EtatBatimentEnum:
+      enum:
+        - 0
+        - 1
+        - 2
+        - 3
+      type: integer
+      format: int32
+    Pbo:
+      type: object
+      properties:
+        referencePBO:
+          maxLength: 30
+          minLength: 0
+          type: string
+          nullable: true
+        typePBO:
+          maxLength: 30
+          minLength: 0
+          type: string
+          nullable: true
+        typeRaccoPbPto:
+          maxLength: 30
+          minLength: 0
+          type: string
+          nullable: true
+        naturePBO:
+          maxLength: 30
+          minLength: 0
+          type: string
+          nullable: true
+        autreInfoPBOPTO:
+          maxLength: 4096
+          minLength: 0
+          type: string
+          nullable: true
+      nullable: true
+    Prise:
+      type: object
+      properties:
+        etiquetteAPoser:
+          type: boolean
+        referencePTO:
+          maxLength: 30
+          minLength: 0
+          type: string
+          nullable: true
+        naturePTO:
+          maxLength: 4
+          minLength: 4
+          type: string
+          nullable: true
+        referencePrisePromoteur:
+          maxLength: 40
+          minLength: 0
+          type: string
+          nullable: true
+        statutLigneFTTH:
+          type: string
+          nullable: true
+        referencePBO:
+          maxLength: 30
+          minLength: 0
+          type: string
+          nullable: true
+        referencePM:
+          maxLength: 20
+          minLength: 0
+          type: string
+          nullable: true
+        referencePMT:
+          maxLength: 50
+          minLength: 0
+          type: string
+          nullable: true
+        informationPTO:
+          maxLength: 512
+          minLength: 0
+          type: string
+          nullable: true
+      nullable: true
+    Local:
+      type: object
+      properties:
+        localisationLocalOI:
+          maxLength: 256
+          minLength: 0
+          type: string
+          nullable: true
+        localisationLocalOC:
+          maxLength: 256
+          minLength: 0
+          type: string
+          nullable: true
+      nullable: true
+    LigneFTTH:
+      type: object
+      properties:
+        prise:
+          $ref: '#/components/schemas/Prise'
+        local:
+          $ref: '#/components/schemas/Local'
+      nullable: true
+    Etage:
+      type: object
+      properties:
+        nombreLocauxFTTH:
+          type: integer
+          format: int32
+        nombreLignesActives:
+          type: integer
+          format: int32
+        nombreLignesExistantes:
+          type: integer
+          format: int32
+        listePbo:
+          type: array
+          items:
+            $ref: '#/components/schemas/Pbo'
+          nullable: true
+        listeLignesFTTH:
+          type: array
+          items:
+            $ref: '#/components/schemas/LigneFTTH'
+          nullable: true
+        reference:
+          maxLength: 25
+          minLength: 0
+          type: string
+          nullable: true
+        refPriseCommandeObligatoire:
+          type: boolean
+      nullable: true
+    Escalier:
+      type: object
+      properties:
+        reference:
+          maxLength: 25
+          minLength: 0
+          type: string
+          nullable: true
+        etages:
+          type: array
+          items:
+            $ref: '#/components/schemas/Etage'
+          nullable: true
+      nullable: true
+    Batiment:
+      required:
+        - escaliers
+        - etatBatiment
+        - nombreLogementsImmeuble
+        - referenceBatiment
+      type: object
+      properties:
+        referenceBatiment:
+          type: string
+        etatBatiment:
+          $ref: '#/components/schemas/EtatBatimentEnum'
+        identifiantImmeuble:
+          type: string
+          nullable: true
+        dateDebutAcceptationCmdAcces:
+          type: string
+          format: date-time
+        supportInfraFTTE:
+          type: string
+          nullable: true
+        etatImmeublePBSpecifique:
+          type: string
+          nullable: true
+        informationBatiment:
+          type: string
+          nullable: true
+        escaliers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Escalier'
+        referenceGeographique:
+          $ref: '#/components/schemas/CoordonneesGeographiques'
+        referenceBAN:
+          type: string
+          nullable: true
+        nombreLogementsImmeuble:
+          type: integer
+          format: int32
+        conditionsSyndic:
+          type: string
+          nullable: true
+        dateMiseEnServiceCommercialeImmeuble:
+          type: string
+          format: date-time
+        raccordementLong:
+          type: boolean
+      nullable: true
+    BatimentsResponse:
+      type: object
+      properties:
+        referenceAdresse:
+          $ref: '#/components/schemas/ReferenceAdresse'
+        batiments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Batiment'
+          nullable: true
+        codeRetour:
+          $ref: '#/components/schemas/CodeRetour'
+      nullable: true
+    EtageSimpleVertical:
+      type: object
+      properties:
+        reference:
+          maxLength: 25
+          minLength: 0
+          type: string
+          nullable: true
+        refPriseCommandeObligatoire:
+          type: boolean
+      nullable: true
+    EscalierSimpleVertical:
+      type: object
+      properties:
+        reference:
+          maxLength: 25
+          minLength: 0
+          type: string
+          nullable: true
+        etages:
+          type: array
+          items:
+            $ref: '#/components/schemas/EtageSimpleVertical'
+          nullable: true
+      nullable: true
+    BatimentSimpleVertical:
+      required:
+        - escaliers
+        - reference
+      type: object
+      properties:
+        reference:
+          maxLength: 60
+          minLength: 0
+          type: string
+        identifiantImmeuble:
+          maxLength: 300
+          minLength: 0
+          type: string
+          nullable: true
+        referenceGeographique:
+          $ref: '#/components/schemas/CoordonneesGeographiques'
+        referenceBAN:
+          maxLength: 30
+          minLength: 0
+          type: string
+          nullable: true
+        escaliers:
+          type: array
+          items:
+            $ref: '#/components/schemas/EscalierSimpleVertical'
+      nullable: true
+    StructureIMBSimple:
+      type: object
+      properties:
+        batiments:
+          type: array
+          items:
+            $ref: '#/components/schemas/BatimentSimpleVertical'
+          nullable: true
+        etatBatiment:
+          $ref: '#/components/schemas/EtatBatimentEnum'
+        identifiantImmeuble:
+          maxLength: 30
+          minLength: 0
+          type: string
+          nullable: true
+        dateDebutAcceptationCmdAcces:
+          type: string
+          format: date-time
+        supportInfraFTTE:
+          maxLength: 30
+          minLength: 0
+          type: string
+          nullable: true
+        etatImmeublePBSpecifique:
+          maxLength: 30
+          minLength: 0
+          type: string
+          nullable: true
+        referencePM:
+          maxLength: 30
+          minLength: 0
+          type: string
+          nullable: true
+        dateMiseEnServiceCommercialeImmeuble:
+          type: string
+          format: date-time
+      nullable: true
+    PriseSimpleDetail:
+      type: object
+      properties:
+        referencePTO:
+          maxLength: 30
+          minLength: 0
+          type: string
+          nullable: true
+        naturePTO:
+          maxLength: 4
+          minLength: 4
+          type: string
+          nullable: true
+        referencePrisePromoteur:
+          maxLength: 40
+          minLength: 0
+          type: string
+          nullable: true
+        statutLigneFTTH:
+          type: string
+          nullable: true
+        referencePBO:
+          maxLength: 30
+          minLength: 0
+          type: string
+          nullable: true
+        referencePMT:
+          maxLength: 50
+          minLength: 0
+          type: string
+          nullable: true
+        informationPTO:
+          maxLength: 512
+          minLength: 0
+          type: string
+          nullable: true
+      nullable: true
+    LocalSimple:
+      type: object
+      properties:
+        localisationLocalOI:
+          maxLength: 256
+          minLength: 0
+          type: string
+          nullable: true
+        localisationLocalOC:
+          maxLength: 256
+          minLength: 0
+          type: string
+          nullable: true
+      nullable: true
+    LigneFTTHSimpleDetail:
+      type: object
+      properties:
+        prise:
+          $ref: '#/components/schemas/PriseSimpleDetail'
+        local:
+          $ref: '#/components/schemas/LocalSimple'
+      nullable: true
+    EtageSimpleDetail:
+      type: object
+      properties:
+        listeLignesFTTH:
+          type: array
+          items:
+            $ref: '#/components/schemas/LigneFTTHSimpleDetail'
+          nullable: true
+        reference:
+          maxLength: 25
+          minLength: 0
+          type: string
+          nullable: true
+        refPriseCommandeObligatoire:
+          type: boolean
+      nullable: true
+    EscalierSimpleDetail:
+      type: object
+      properties:
+        reference:
+          maxLength: 25
+          minLength: 0
+          type: string
+          nullable: true
+        etages:
+          type: array
+          items:
+            $ref: '#/components/schemas/EtageSimpleDetail'
+          nullable: true
+      nullable: true
+    BatimentSimpleDetail:
+      required:
+        - escaliers
+        - referenceBatiment
+      type: object
+      properties:
+        referenceBatiment:
+          type: string
+        informationBatiment:
+          type: string
+          nullable: true
+        escaliers:
+          type: array
+          items:
+            $ref: '#/components/schemas/EscalierSimpleDetail'
+      nullable: true
+    StructureIMBSimpleDetail:
+      type: object
+      properties:
+        batiments:
+          type: array
+          items:
+            $ref: '#/components/schemas/BatimentSimpleDetail'
+          nullable: true
+        etatBatiment:
+          $ref: '#/components/schemas/EtatBatimentEnum'
+        identifiantImmeuble:
+          maxLength: 30
+          minLength: 0
+          type: string
+          nullable: true
+        dateDebutAcceptationCmdAcces:
+          type: string
+          format: date-time
+        supportInfraFTTE:
+          maxLength: 30
+          minLength: 0
+          type: string
+          nullable: true
+        etatImmeublePBSpecifique:
+          maxLength: 30
+          minLength: 0
+          type: string
+          nullable: true
+        referencePM:
+          maxLength: 30
+          minLength: 0
+          type: string
+          nullable: true
+        dateMiseEnServiceCommercialeImmeuble:
+          type: string
+          format: date-time
+      nullable: true
+    LibelleVoie:
+      type: object
+      properties:
+        libelle:
+          maxLength: 50
+          minLength: 0
+          type: string
+          nullable: true
+        type:
+          maxLength: 20
+          minLength: 0
+          type: string
+          nullable: true
+      nullable: true
+    Voie:
+      type: object
+      properties:
+        referenceRivoli:
+          type: array
+          items:
+            $ref: '#/components/schemas/VoieRivoli'
+          nullable: true
+        referenceHexacle:
+          maxLength: 10
+          minLength: 10
+          type: string
+          nullable: true
+        referenceOI:
+          maxLength: 30
+          minLength: 0
+          type: string
+          nullable: true
+        libelleVoie:
+          type: array
+          items:
+            $ref: '#/components/schemas/LibelleVoie'
+          nullable: true
+      nullable: true
+    VoiesResponse:
+      type: object
+      properties:
+        voies:
+          type: array
+          items:
+            $ref: '#/components/schemas/Voie'
+          nullable: true
+        codeRetour:
+          $ref: '#/components/schemas/CodeRetour'
+      nullable: true
+  securitySchemes:
+    Bearer:
+      type: apiKey
+      description: 'JWT Authorization header using the Bearer scheme. Example: "Authorization: Bearer {token}"'
+      name: Authorization
+      in: header
+security:
+  - Bearer: []
